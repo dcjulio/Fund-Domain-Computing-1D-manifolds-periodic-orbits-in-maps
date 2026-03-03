@@ -1,44 +1,14 @@
 classdef StdHenon3D_periodic
     methods     ( Static = true )
 
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %%%%%%%%%%%%% MAPPING %%%%%%%%%%%%%%%%
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        function outpoints = mapping(inpoints,opts,mapiter)
-            %manif.points: coordinates x,y,z
-            %mapiter: integer. neg for preimage(Smanifold), pos for image(Umanifold)
-            thesystem=opts.thesystem;
-            points=inpoints;
-
-            for i=1:abs(mapiter) % time the map is applied
-
-                %decompactify
-                decomp_points=thesystem.decompactify(points);
-
-                if mapiter>0 %image (associated with Wu)
-                    map_points=thesystem.ff(decomp_points,opts);
-
-                else %preimage (associated with Ws)
-                    map_points=thesystem.ff_inv(decomp_points,opts);
-                    
-                end
-
-                %compactify
-                points=thesystem.compactify(map_points); 
-
-            end
-            outpoints=points;
-      
-        end
-   
-
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %%%%%%% DEFINITION OF THE MAP %%%%%%%%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-        % > -------- map
+        %----------------------------------------------
+        %------------------- Map ----------------------
+        %----------------------------------------------
         function map_points=ff(points,opts)
 
             a=opts.par.a;
@@ -55,10 +25,8 @@ classdef StdHenon3D_periodic
         end
         
         %----------------------------------------------
+        %--------------- Inverse map ------------------
         %----------------------------------------------
-        %----------------------------------------------
-
-        % > -------- inverse map
         function map_points=ff_inv(points,opts)
 
             a=opts.par.a;
@@ -73,12 +41,6 @@ classdef StdHenon3D_periodic
             map_points.z = (-points.x + points.z)/xi;
 
         end
-
-        %----------------------------------------------
-        %----------------------------------------------
-        %----------------------------------------------
-
-
 
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -118,28 +80,13 @@ classdef StdHenon3D_periodic
         end
 
          
-        %------------ Compactification ---------------
-        %----------------------------------------------
-        %----------------------------------------------
-        %----------------------------------------------
-        
-        
-        % > -------- decompactify
-        function decomp_points=decompactify(points)
-            decomp_points=struct();
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %%%%%%%%%%% COMPACTIFICATION %%%%%%%%%
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-            r = (1 - points.x.^2 - points.y.^2);
-            decomp_points.x = 2*points.x./r;
-            decomp_points.y = 2*points.y./r;
-            decomp_points.z = 2*points.z./(1 - points.z.^2);
-
-        end
-        
         %----------------------------------------------
+        %--------------- compactify ------------------
         %----------------------------------------------
-        %----------------------------------------------
-    
-        % > -------- compactify
         function comp_points=compactify(points)
             comp_points=struct();
 
@@ -150,31 +97,53 @@ classdef StdHenon3D_periodic
 
         end
         
-
         %----------------------------------------------
+        %--------------- decompactify ------------------
         %----------------------------------------------
-        %----------------------------------------------
-        % > -------- map and inverse map from compactification to compactification
-        
-        function inv_points=invmap_comp(points,opts)
+        function decomp_points=decompactify(points)
+            decomp_points=struct();
 
-            thesystem=opts.thesystem;
-
-            decomp=thesystem.decompactify(points);
-            inv=thesystem.ff_inv(decomp,opts);
-            inv_points=thesystem.compactify(inv);
+            r = (1 - points.x.^2 - points.y.^2);
+            decomp_points.x = 2*points.x./r;
+            decomp_points.y = 2*points.y./r;
+            decomp_points.z = 2*points.z./(1 - points.z.^2);
 
         end
         
-        function inv_points=map_comp(points,opts)
 
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %%%%%%%%%%%%% MAPPING %%%%%%%%%%%%%%%%
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % ///// Not to be modified by user ///// %
+
+        function outpoints = mapping(inpoints,opts,stab)
+            %manif.points: coordinates x,y,z
+            %stab: integer. neg for preimage(Smanifold), pos for image(Umanifold)
             thesystem=opts.thesystem;
+            points=inpoints;
 
-            decomp=thesystem.decompactify(points);
-            inv=thesystem.ff(decomp,opts);
-            inv_points=thesystem.compactify(inv);
 
-        end
+            for i=1:abs(stab) % typically is 1 or -1. It could be set to another integer to increase the times the map is applied. That could be done by cahanging the main routine GrowFundCurv1D
+
+                %decompactify
+                decomp_points=thesystem.decompactify(points);
+
+                if stab>0 %image (associated with Wu)
+                    map_points=thesystem.ff(decomp_points,opts);
+
+                else %preimage (associated with Ws)
+                    map_points=thesystem.ff_inv(decomp_points,opts);
+                    
+                end
+                
+
+                %compactify
+                points=thesystem.compactify(map_points); 
+
+            end
+            outpoints=points;
+      
+        end       
 
     end
 end
