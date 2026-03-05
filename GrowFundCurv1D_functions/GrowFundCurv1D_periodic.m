@@ -25,32 +25,6 @@ end
     period = numel(per_orbit.x);
     name = opts.per_orbit.name;
 
-%% Error in case the given period-k orbit is not a periodic orbit
-    
-PO_uncomp=manif.per_orbit.coord_original;
-PO.x=PO_uncomp.x(1); PO.y=PO_uncomp.y(1); PO.z=PO_uncomp.z(1);
-orbit=PO;
-
-for k=2:period
-    PO = thesystem.ff(PO,opts);
-    orbit.x(k)=PO.x;
-    orbit.y(k)=PO.y;
-    orbit.z(k)=PO.z;
-end    
-PO = thesystem.ff(PO,opts);
-orbit.x(1)=PO.x;
-orbit.y(1)=PO.y;
-orbit.z(1)=PO.z;
-
-distance=sum(sqrt((PO_uncomp.x-orbit.x).^2+(PO_uncomp.y-orbit.y).^2+(PO_uncomp.z-orbit.z).^2));
-if distance > 10^-3%manif.grow_info.deltamin
-    fprintf('\n----  Error! The periodic orbit appears to be incorrect.\n The distances between the given orbit and the iterations from the first point are:\n');
-    for k=1:period
-        disp(sqrt((PO_uncomp.x(k)-orbit.x(k)).^2+(PO_uncomp.y(k)-orbit.y(k)).^2+(PO_uncomp.z(k)-orbit.z(k)).^2))
-    end
-    return
-end
-
     %% Warnings in case the specifications are not correct for the computation of this manifold
 
     if strcmp(manif.orientability,'orientation-reversing')
@@ -146,6 +120,15 @@ end
 %% computes first fundamental domain
 
 % by default, we choose the eigenvector going to positive x
+if numel(manif.grow_info.eigvec)==0
+    if strcmp(manif.stability,'Smanifold')
+        fprintf('Error: This periodic orbit appears to be a repeller and it doesnt have a Stable manifold.\n');
+    else
+        fprintf('Error: This periodic orbit appears to be a attractor and it doesnt have an Unstable manifold.\n');
+    end
+    return
+end
+
 if manif.grow_info.eigvec(1) < 0 % is it is going to negative x, then consider the other side
     manif.grow_info.eigvec = -manif.grow_info.eigvec;
 end

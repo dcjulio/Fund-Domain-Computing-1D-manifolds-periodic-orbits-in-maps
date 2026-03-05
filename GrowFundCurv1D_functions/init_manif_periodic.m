@@ -17,6 +17,9 @@ function manif = init_manif_periodic(opts)
 %
 %---- manif.grow_info: information for the algorithm---% 
 %
+%% to-do
+% add syst_info with fixed points if defined in the class of functions. % eigensystem, stability and orientability of all the fixed points
+
 %%
 %the map function where the system is defined (example StdHenon3D)
 thesystem=opts.thesystem;   
@@ -73,7 +76,6 @@ if isfield(opts,'accpar')
     end
 end
 
-
 %% Parameter values
 manif.par=opts.par;  % parameters
 
@@ -87,22 +89,11 @@ manif.per_orbit.coord_compactified=thesystem.compactify(opts.per_orbit.coord); %
 eigval=manif.per_orbit.eigval;
 eigvec_x0=manif.per_orbit.eigvec_x0;
 
-
 % computes the dimension and orientation properties of the stable manifold
 manif.per_orbit.Smanifold.dimension=sum(abs(eigval)<1);
 manif.per_orbit.Smanifold.orientability=orientability(eigval,'Smanifold',opts);
 manif.per_orbit.Smanifold.eigval=eigval(abs(eigval)<1);
 manif.per_orbit.Smanifold.eigvec_x0=eigvec_x0(abs(eigval)<1,:);
-
-% computes the dimension and orientation properties of the unstable manifold
-manif.per_orbit.Umanifold.dimension=sum(abs(eigval)>1);
-manif.per_orbit.Umanifold.orientability=orientability(eigval,'Umanifold',opts);
-manif.per_orbit.Umanifold.eigval=eigval(abs(eigval)>1);
-manif.per_orbit.Umanifold.eigvec=eigvec_x0(abs(eigval)>1,:);
-
-% computes the dimension and orientation properties of the stable manifold
-manif.per_orbit.Smanifold.dimension=sum(abs(eigval)<1);
-manif.per_orbit.Smanifold.orientability=orientability(eigval,'Smanifold',opts);
 if strcmp(opts.stability,'Smanifold')
     manif.dimension=manif.per_orbit.Smanifold.dimension;
     manif.orientability=manif.per_orbit.Smanifold.orientability;
@@ -111,6 +102,8 @@ end
 % computes the dimension and orientation properties of the unstable manifold
 manif.per_orbit.Umanifold.dimension=sum(abs(eigval)>1);
 manif.per_orbit.Umanifold.orientability=orientability(eigval,'Umanifold',opts);
+manif.per_orbit.Umanifold.eigval=eigval(abs(eigval)>1);
+manif.per_orbit.Umanifold.eigvec_x0=eigvec_x0(abs(eigval)>1,:);
 if strcmp(opts.stability,'Umanifold')
     manif.dimension=manif.per_orbit.Umanifold.dimension;
     manif.orientability=manif.per_orbit.Umanifold.orientability;
@@ -130,7 +123,7 @@ if isfield(opts,'branch')
    end
 end
 
-%% Name of the manifold. Example: Ws_pmin_pos
+%% Name of the manifold. Example: Ws_pmin
 
 % defining the name of the manifold
 manif.name = sprintf('W%s_%s', lower(manif.stability(1)),opts.per_orbit.name);  
