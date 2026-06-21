@@ -1,4 +1,5 @@
 function Manif=GrowFundCurv1D_periodic(opts,eigenval_idx)
+
 % Input:
 % - opts: all the options needed to compute the manifold
 % - eigenval_idx: optional argument. It is which eigenvector to consider for 2D manifolds
