@@ -793,13 +793,13 @@ end
 
     %chop the manifold up to the desired arclength
     if fund.points.arc(end) > needed_arc
-         idx_arc = find(fund.points.arc < needed_arc, 1, 'last'); %find last point that is less than the needed arc
+         idx_arc = find(fund.points.arc > needed_arc, 1, 'first'); %find first point that is bigger than the needed arc
 
          % chop the fund domain and the mappoints up to the needed arclength
-         fund.points.x = spline(fund.points.arc,fund.points.x,[fund.points.arc(1:idx_arc) needed_arc]);
-         fund.points.y = spline(fund.points.arc,fund.points.y,[fund.points.arc(1:idx_arc) needed_arc]);
-         fund.points.z = spline(fund.points.arc,fund.points.z,[fund.points.arc(1:idx_arc) needed_arc]);
-         fund.points.arc = arclength(fund.points);
+         fund.points.x = fund.points.x(1:idx_arc);
+         fund.points.y = fund.points.y(1:idx_arc);
+         fund.points.z = fund.points.z(1:idx_arc);
+         fund.points.arc = fund.points.arc(1:idx_arc);
     end
 
     fprintf(' Fund domain arclength %.2f \n', fund.points.arc(end));
